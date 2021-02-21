@@ -1,5 +1,6 @@
 ﻿using MihaZupan;
 using System;
+using System.Formats.Asn1;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -40,8 +41,9 @@ namespace Lab3
                     Method = HeadUserList
                 },
                 new MenuAction {
-                    Name = "OPTIONS /api/Users"
-                }
+                    Name = "OPTIONS /api/Users",
+                    Method = OptionsUsersList
+                },
                 new MenuAction {
                     Name = "Выход",
                     Method = Quit
@@ -118,6 +120,14 @@ namespace Lab3
                 }
             } else if (response.StatusCode == HttpStatusCode.Unauthorized) {
                 Console.WriteLine("\nВы не авторизованы или срок действия cookie истёк");
+            }
+        }
+
+        static async ValueTask OptionsUsersList() {
+            var request = new HttpRequestMessage(HttpMethod.Options, "/api/Users");
+            var response = await httpClient.SendAsync(request);
+            if (response.Content.Headers.TryGetValues("allow", out var allow)) {
+                Console.WriteLine($"Allow: {string.Join(", ", allow)}");
             }
         }
 
